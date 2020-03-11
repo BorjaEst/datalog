@@ -1,13 +1,13 @@
 {application, datalog,
- [{description, "An OTP library"},
+ [{description, "A simple datalogger for .json files"},
   {vsn, "0.1.0"},
-  {registered, []},
+  {registered, [datalog]},
   {applications,
    [kernel,
     stdlib
    ]},
   {env,[]},
-  {modules, []},
+  {modules, [datalog]},
 
   {maintainers, []},
   {licenses, ["Apache 2.0"]},

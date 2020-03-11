@@ -101,7 +101,6 @@ groups() ->
 %%--------------------------------------------------------------------
 all() ->
 	[
-		eunit_nndb,
 		eunit_datalog
 	].
 
@@ -116,8 +115,5 @@ all() ->
 %% Reason = term()
 %% Comment = term()
 %%--------------------------------------------------------------------
-eunit_nndb() ->	[].
-eunit_nndb(_Config) ->	ok = eunit:test([nndb]).
-
 eunit_datalog() ->	[].
 eunit_datalog(_Config) -> ok = eunit:test([datalog]).
