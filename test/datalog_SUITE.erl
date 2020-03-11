@@ -144,12 +144,12 @@ correct_start_and_stop() ->
 	[].
 correct_start_and_stop(_Config) ->
 	datalog:start_link(),
-	datalogPid = whereis(datalog),
-	true = is_pid(datalogPid),
-	true = is_process_alive(datalogPid),
-	exit(datalogPid, normal),
+	DatalogPid = whereis(datalog),
+	true = is_pid(DatalogPid),
+	true = is_process_alive(DatalogPid),
+	exit(DatalogPid, normal),
 	timer:sleep(10),
-	false = is_process_alive(datalogPid),
+	false = is_process_alive(DatalogPid),
 	ok.
 
 % ......................................................................................................................
