@@ -5,15 +5,15 @@
 %%%
 %%% Created :
 %%%-------------------------------------------------------------------
--module(eunit_nntools_SUITE).
+-module(eunit_datalog_SUITE).
 
 -compile(export_all).
 -compile(nowarn_export_all).
 
 -include_lib("common_test/include/ct.hrl").
 
--define(INFO(Info), ct:log(?LOW_IMPORTANCE, "Info report: ~p", [Info])).
--define(ERROR(Error), ct:pal(?HI_IMPORTANCE, "Error report: ~p", [Error])).
+-define(INFO(Info), ct:log(?LOW_IMPORTANCE, "Info datalog: ~p", [Info])).
+-define(ERROR(Error), ct:pal(?HI_IMPORTANCE, "Error datalog: ~p", [Error])).
 
 %%--------------------------------------------------------------------
 %% Function: suite() -> Info
@@ -102,7 +102,7 @@ groups() ->
 all() ->
 	[
 		eunit_nndb,
-		eunit_report
+		eunit_datalog
 	].
 
 %%--------------------------------------------------------------------
@@ -119,5 +119,5 @@ all() ->
 eunit_nndb() ->	[].
 eunit_nndb(_Config) ->	ok = eunit:test([nndb]).
 
-eunit_report() ->	[].
-eunit_report(_Config) -> ok = eunit:test([report]).
+eunit_datalog() ->	[].
+eunit_datalog(_Config) -> ok = eunit:test([datalog]).

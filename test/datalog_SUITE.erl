@@ -5,19 +5,16 @@
 %%%
 %%% Created :
 %%%-------------------------------------------------------------------
--module(nndb_SUITE).
+-module(datalog_SUITE).
 
 -compile(export_all).
 -compile(nowarn_export_all).
 
 -include_lib("common_test/include/ct.hrl").
 
--define(INFO(Info), ct:log(?LOW_IMPORTANCE, "Info report: ~p", [Info])).
--define(ERROR(Error), ct:pal(?HI_IMPORTANCE, "Error report: ~p", [Error])).
+-define(INFO(Info), ct:log(?LOW_IMPORTANCE, "Info datalog: ~p", [Info])).
+-define(ERROR(Error), ct:pal(?HI_IMPORTANCE, "Error datalog: ~p", [Error])).
 
--record(test_rectab, {id, data}).
--define(MNESIA_TEST_TABLE_ATTRIBUTES_LIST, [
-	{test_rectab, record_info(fields, test_rectab)}]).
 
 %%--------------------------------------------------------------------
 %% Function: suite() -> Info
@@ -33,8 +30,6 @@ suite() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-	nndb:create_tables(?MNESIA_TEST_TABLE_ATTRIBUTES_LIST),
-	nndb:start(?MNESIA_TEST_TABLE_ATTRIBUTES_LIST),
 	Config.
 
 %%--------------------------------------------------------------------
@@ -42,7 +37,6 @@ init_per_suite(Config) ->
 %% Config0 = Config1 = [tuple()]
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
-	nndb:stop(),
 	ok.
 
 %%--------------------------------------------------------------------
@@ -52,7 +46,10 @@ end_per_suite(_Config) ->
 %% Config0 = Config1 = [tuple()]
 %% Reason = term()
 %%--------------------------------------------------------------------
+init_per_group(start_and_stop, Config) ->
+	Config;
 init_per_group(_GroupName, Config) ->
+    datalog:start(),
 	Config.
 
 %%--------------------------------------------------------------------
@@ -61,7 +58,10 @@ init_per_group(_GroupName, Config) ->
 %% GroupName = atom()
 %% Config0 = Config1 = [tuple()]
 %%--------------------------------------------------------------------
+end_per_group(start_and_stop, _Config) ->
+	ok;
 end_per_group(_GroupName, _Config) ->
+	exit(whereis(datalog), shutdown),
 	ok.
 
 %%--------------------------------------------------------------------
@@ -97,7 +97,14 @@ end_per_testcase(_TestCase, _Config) ->
 %% N = integer() | forever
 %%--------------------------------------------------------------------
 groups() ->
-	[].
+	[
+		{start_and_stop, [sequence],
+		 [correct_start_and_stop]
+		 },
+		{make_datalogs, [parallel],
+		 [random_datalog || _ <- lists:seq(1,10)]
+		}
+	].
 
 %%--------------------------------------------------------------------
 %% Function: all() -> GroupsAndTestCases | {skip,Reason}
@@ -108,8 +115,8 @@ groups() ->
 %%--------------------------------------------------------------------
 all() ->
 	[
-		test_nndb_individual_elements,
-		test_nndb_multiple_elements
+		{group, start_and_stop},
+		{group, make_datalogs}
 	].
 
 %%--------------------------------------------------------------------
@@ -132,55 +139,41 @@ my_test_case_example(_Config) ->
 
 % --------------------------------------------------------------------
 % COMMON TESTS -------------------------------------------------------
-% ......................................................................................................................
-test_nndb_individual_elements() ->
+% ....................................................................
+correct_start_and_stop() ->
 	[].
-test_nndb_individual_elements(_Config) ->
-	Element_1 = #test_rectab{id = {{0, make_ref()}, test_rectab}}, ?INFO(Element_1),
-	Element_2 = #test_rectab{id = {{0, make_ref()}, test_rectab}}, ?INFO(Element_2),
-	% Test writing
-	{'EXIT', {aborted, {bad_type, bad_thing}}} = (catch nndb:write(bad_thing)),
-	ok = nndb:write(Element_1),
-	% Test reading
-	undefined = nndb:read(Element_2#test_rectab.id),
-	{'EXIT', {{badmatch, bad_thing}, _}} = (catch nndb:read(bad_thing)),
-	Element_1 = nndb:read(Element_1#test_rectab.id),
-	% Test deleting
-	{'EXIT', {{badmatch, bad_thing}, _}} = (catch nndb:delete(bad_thing)),
-	Element_1 = nndb:read(Element_1#test_rectab.id), ?INFO(Element_1),
-	ok = nndb:delete(Element_1#test_rectab.id),
-	undefined = nndb:read(Element_1#test_rectab.id), ?INFO(Element_1),
-	ok = nndb:delete(Element_1#test_rectab.id), ?INFO(Element_1).
-
-
-% ......................................................................................................................
-test_nndb_multiple_elements() ->
-	[].
-test_nndb_multiple_elements(_Config) ->
-	Element_1 = #test_rectab{id = {{0, make_ref()}, test_rectab}}, ?INFO(Element_1),
-	Element_2 = #test_rectab{id = {{0, make_ref()}, test_rectab}}, ?INFO(Element_2),
-	Element_3 = #test_rectab{id = {{0, make_ref()}, test_rectab}}, ?INFO(Element_3),
-	Elements_2_3 = [Element_2, Element_3], ?INFO(Elements_2_3),
-	Elements_1_2_3 = [Element_1, Element_2, Element_3], ?INFO(Elements_1_2_3),
-	% Test writing in groups
-	{'EXIT', {aborted, {bad_type, _}}} = (catch nndb:write([bad_thing1, bad_thing2])),
-	ok = nndb:write(Elements_2_3),
-	% Test reading in groups
-	{'EXIT', {{badmatch, _}, _}} = (catch nndb:read([bad_thing1, bad_thing2])),
-	[undefined, Element_2, Element_3] = nndb:read([E#test_rectab.id || E <- Elements_1_2_3]),
-	ok = nndb:write(Elements_1_2_3),
-	Elements_1_2_3 = nndb:read([E#test_rectab.id || E <- Elements_1_2_3]),
-	% Test deleting in groups
-	{'EXIT', {{badmatch, _}, _}} = (catch nndb:delete([bad_thing1, bad_thing2])),
-	ok = nndb:delete([E#test_rectab.id || E <- Elements_2_3]),
-	[Element_1, undefined, undefined] = nndb:read([E#test_rectab.id || E <- Elements_1_2_3]),
-	ok = nndb:delete([E#test_rectab.id || E <- Elements_1_2_3]),
-	[undefined, undefined, undefined] = nndb:read([E#test_rectab.id || E <- Elements_1_2_3]),
-	ok = nndb:delete([E#test_rectab.id || E <- Elements_1_2_3]),
-	[undefined, undefined, undefined] = nndb:read([E#test_rectab.id || E <- Elements_1_2_3]),
+correct_start_and_stop(_Config) ->
+	datalog:start_link(),
+	datalogPid = whereis(datalog),
+	true = is_pid(datalogPid),
+	true = is_process_alive(datalogPid),
+	exit(datalogPid, normal),
+	timer:sleep(10),
+	false = is_process_alive(datalogPid),
 	ok.
 
+% ......................................................................................................................
+random_datalog() ->
+	[].
+random_datalog(_Config) -> 
+	[write_datalog() || _<- lists:seq(1, rand:uniform(10))],
+	ok.
 
 % ----------------------------------------------------------------------------------------------------------------------
 % SPECIFIC HELPER FUNCTIONS --------------------------------------------------------------------------------------------
 
+unique_filename() ->
+	FileIndex = erlang:unique_integer([positive]),
+	"datalog_" ++ integer_to_list(FileIndex) ++ ".json".
+
+sample_map() ->
+	#{
+		<<"int">> => rand:uniform(100),
+		<<"float">> => rand:normal(),
+		<<"text">> => <<"Some text">>
+	}.
+
+write_datalog() -> 
+	{ok, Ref} = datalog:new(unique_filename()),
+	[datalog:write(Ref, sample_map()) || _<- lists:seq(1, rand:uniform(10))],
+	ok = datalog:close(Ref).

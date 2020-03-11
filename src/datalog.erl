@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 15. Apr 2019 20:41
 %%%-------------------------------------------------------------------
--module(report).
+-module(datalog).
 -compile([export_all, nowarn_export_all]). %%TODO: To delete after build
 
 -behaviour(gen_server).
@@ -21,7 +21,7 @@
 		 terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(EUNIT_TEST_FILE, "eunit_report_test.json").
+-define(EUNIT_TEST_FILE, "eunit_datalog_test.json").
 -record(state, {}).
 
 
@@ -50,7 +50,7 @@ start() ->
   gen_server:start({local, ?SERVER}, ?MODULE, [], []).
 
 %%--------------------------------------------------------------------
-%% @doc Creates a new report. It returns the reference of the report
+%% @doc Creates a new datalog. It returns the reference of the datalog
 %% to use it in future writtings or to close it.
 %% @end
 %%--------------------------------------------------------------------
@@ -61,7 +61,7 @@ new(Name) ->
 	gen_server:call(?SERVER, {new, Name}).
 
 %%--------------------------------------------------------------------
-%% @doc Writes a map into the report file following json convention.
+%% @doc Writes a map into the datalog file following json convention.
 %% @end
 %%--------------------------------------------------------------------
 -spec write(Reference :: reference(), EJSON :: #{}) -> 
@@ -74,7 +74,7 @@ write(Reference, EJSON) ->
 	gen_server:cast(?SERVER, {write, Reference, EJSON_Ext}).
 
 %%--------------------------------------------------------------------
-%% @doc Closes a report.
+%% @doc Closes a datalog.
 %% @end
 %%--------------------------------------------------------------------
 -spec close(Reference :: reference()) -> 
@@ -260,7 +260,7 @@ delete_file(_) ->
 
 % ----------------------------------------------------------------------------------------------------------------------
 % TESTS DESCRIPTIONS ---------------------------------------------------------------------------------------------------
-make_report_test_() ->
+make_datalog_test_() ->
     [{"Correct IoDevice addition, writting and deletion with internal functions",
       {setup, local, fun with_iodevice/0, fun delete_file/1,
 	   {inorder, 
