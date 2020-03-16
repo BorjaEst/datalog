@@ -264,30 +264,28 @@ make_datalog_test_() ->
     [{"Correct IoDevice addition, writting and deletion with internal functions",
       {setup, local, fun with_iodevice/0, fun delete_file/1,
 	   {inorder, 
-        [{"Correct IoDevice addition", ?_assert(add_iodevice_test())},
-		 {"Correct IoDevice writting", ?_assert(write_iodevice_test())},
-		 {"Correct IoDevice clossing", ?_assert(del_iodevice_test())},
+        [{"Correct IoDevice addition", ?_test(test_add_iodevice())},
+		 {"Correct IoDevice writting", ?_test(test_write_iodevice())},
+		 {"Correct IoDevice clossing", ?_test(test_del_iodevice())},
 		 {"io_devices is empty ", ?_assertMatch(#{}, get(io_devices))}]}}}].
 
 
 % ----------------------------------------------------------------------------------------------------------------------
 % ACTUAL TESTS ---------------------------------------------------------------------------------------------------------
-add_iodevice_test() ->
+test_add_iodevice() ->
 	IoDevice = get(io),
-	add_iodevice(IoDevice),
-    lists:all(
-		fun is_reference/1, 
-		maps:keys(get(io_devices))).
+	Ref = add_iodevice(IoDevice),
+	?assert(is_reference(Ref)),
+	[?assert(is_reference(R)) || R <- maps:keys(get(io_devices))].
 
-write_iodevice_test() ->
+test_write_iodevice() ->
 	[Ref] =  maps:keys(get(io_devices)),
 	EJSON = #{<<"foo">> => <<"bar">>},
-	write_iodevice(Ref, EJSON),
-	true.
+	[write_iodevice(Ref, EJSON) || _ <- lists:seq(1,20)].
 
-del_iodevice_test() ->
+test_del_iodevice() ->
 	[Ref] =  maps:keys(get(io_devices)),
-	ok == del_iodevice(Ref).
+	?assert(ok == del_iodevice(Ref)).
 
 
 % ----------------------------------------------------------------------------------------------------------------------
