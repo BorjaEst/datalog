@@ -1,14 +1,20 @@
 {application, datalog,
  [{description, "A simple datalogger for .json files"},
   {vsn, "0.1.0"},
-  {registered, [datalog]},
+  {registered, [
+      datalog_sup,
+      datalog
+    ]},
   {applications,
    [kernel,
     stdlib
    ]},
   {env,[]},
-  {modules, [datalog]},
-
+  {modules, [
+      datalog_app,
+      datalog_sup,
+      datalog
+    ]},
   {maintainers, []},
   {licenses, ["Apache 2.0"]},
   {links, []}
