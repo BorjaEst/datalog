@@ -21,7 +21,7 @@
 %% Info = [tuple()]
 %%--------------------------------------------------------------------
 suite() ->
-	[{timetrap, {seconds, 30}}].
+    [{timetrap, {seconds, 30}}].
 
 %%--------------------------------------------------------------------
 %% Function: init_per_suite(Config0) ->
@@ -30,14 +30,14 @@ suite() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-	Config.
+    Config.
 
 %%--------------------------------------------------------------------
 %% Function: end_per_suite(Config0) -> term() | {save_config,Config1}
 %% Config0 = Config1 = [tuple()]
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
-	ok.
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: init_per_group(GroupName, Config0) ->
@@ -47,10 +47,10 @@ end_per_suite(_Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_group(start_and_stop, Config) ->
-	Config;
+    Config;
 init_per_group(_GroupName, Config) ->
     datalog:start(),
-	Config.
+    Config.
 
 %%--------------------------------------------------------------------
 %% Function: end_per_group(GroupName, Config0) ->
@@ -59,10 +59,10 @@ init_per_group(_GroupName, Config) ->
 %% Config0 = Config1 = [tuple()]
 %%--------------------------------------------------------------------
 end_per_group(start_and_stop, _Config) ->
-	ok;
+    ok;
 end_per_group(_GroupName, _Config) ->
-	exit(whereis(datalog), shutdown),
-	ok.
+    exit(whereis(datalog), shutdown),
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: init_per_testcase(TestCase, Config0) ->
@@ -72,7 +72,7 @@ end_per_group(_GroupName, _Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_testcase(_TestCase, Config) ->
-	Config.
+    Config.
 
 %%--------------------------------------------------------------------
 %% Function: end_per_testcase(TestCase, Config0) ->
@@ -82,7 +82,7 @@ init_per_testcase(_TestCase, Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
-	ok.
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: groups() -> [Group]
@@ -97,14 +97,14 @@ end_per_testcase(_TestCase, _Config) ->
 %% N = integer() | forever
 %%--------------------------------------------------------------------
 groups() ->
-	[
-		{start_and_stop, [sequence],
-		 [correct_start_and_stop]
-		 },
-		{make_datalogs, [parallel],
-		 [random_datalog || _ <- lists:seq(1,10)]
-		}
-	].
+    [
+        {start_and_stop, [sequence],
+         [correct_start_and_stop]
+         },
+        {make_datalogs, [parallel],
+         [random_datalog || _ <- lists:seq(1,10)]
+        }
+    ].
 
 %%--------------------------------------------------------------------
 %% Function: all() -> GroupsAndTestCases | {skip,Reason}
@@ -114,17 +114,17 @@ groups() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 all() ->
-	[
-		{group, start_and_stop},
-		{group, make_datalogs}
-	].
+    [
+        {group, start_and_stop},
+        {group, make_datalogs}
+    ].
 
 %%--------------------------------------------------------------------
 %% Function: TestCase() -> Info
 %% Info = [tuple()]
 %%--------------------------------------------------------------------
 my_test_case_example() ->
-	[].
+    [].
 
 %%--------------------------------------------------------------------
 %% Function: TestCase(Config0) ->
@@ -135,45 +135,45 @@ my_test_case_example() ->
 %% Comment = term()
 %%--------------------------------------------------------------------
 my_test_case_example(_Config) ->
-	ok.
+    ok.
 
 % --------------------------------------------------------------------
 % COMMON TESTS -------------------------------------------------------
 % ....................................................................
 correct_start_and_stop() ->
-	[].
+    [].
 correct_start_and_stop(_Config) ->
-	datalog:start_link(),
-	DatalogPid = whereis(datalog),
-	true = is_pid(DatalogPid),
-	true = is_process_alive(DatalogPid),
-	exit(DatalogPid, normal),
-	timer:sleep(10),
-	false = is_process_alive(DatalogPid),
-	ok.
+    datalog:start_link(),
+    DatalogPid = whereis(datalog),
+    true = is_pid(DatalogPid),
+    true = is_process_alive(DatalogPid),
+    exit(DatalogPid, normal),
+    timer:sleep(10),
+    false = is_process_alive(DatalogPid),
+    ok.
 
 % ......................................................................................................................
 random_datalog() ->
-	[].
+    [].
 random_datalog(_Config) -> 
-	[write_datalog() || _<- lists:seq(1, rand:uniform(10))],
-	ok.
+    [write_datalog() || _<- lists:seq(1, rand:uniform(10))],
+    ok.
 
 % ----------------------------------------------------------------------------------------------------------------------
 % SPECIFIC HELPER FUNCTIONS --------------------------------------------------------------------------------------------
 
 unique_filename() ->
-	FileIndex = erlang:unique_integer([positive]),
-	"datalog_" ++ integer_to_list(FileIndex) ++ ".json".
+    FileIndex = erlang:unique_integer([positive]),
+    "datalog_" ++ integer_to_list(FileIndex) ++ ".json".
 
 sample_map() ->
-	#{
-		<<"int">> => rand:uniform(100),
-		<<"float">> => rand:normal(),
-		<<"text">> => <<"Some text">>
-	}.
+    #{
+        <<"int">> => rand:uniform(100),
+        <<"float">> => rand:normal(),
+        <<"text">> => <<"Some text">>
+    }.
 
 write_datalog() -> 
-	{ok, Ref} = datalog:new(unique_filename()),
-	[datalog:write(Ref, sample_map()) || _<- lists:seq(1, rand:uniform(10))],
-	ok = datalog:close(Ref).
+    {ok, Ref} = datalog:new(unique_filename()),
+    [datalog:write(Ref, sample_map()) || _<- lists:seq(1, rand:uniform(10))],
+    ok = datalog:close(Ref).

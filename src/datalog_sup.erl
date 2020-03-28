@@ -13,11 +13,11 @@
 
 -define(SERVER, ?MODULE).
 -define(SPECS_DATALOG, #{
-	id       => datalog,
-	start    => {datalog, start_link, []},
-	restart  => permanent,
-	shutdown => 500,
-	modules  => [gen_server]}).
+    id       => datalog,
+    start    => {datalog, start_link, []},
+    restart  => permanent,
+    shutdown => 500,
+    modules  => [gen_server]}).
 
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
