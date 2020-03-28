@@ -1,13 +1,10 @@
 %%%-------------------------------------------------------------------
 %%% @author borja
-%%% @copyright (C) 2019, <COMPANY>
 %%% @doc
 %%%
 %%% @end
-%%% Created : 15. Apr 2019 20:41
 %%%-------------------------------------------------------------------
 -module(datalog).
--compile([export_all, nowarn_export_all]). %%TODO: To delete after build
 
 -behaviour(gen_server).
 -include_lib("eunit/include/eunit.hrl").
