@@ -5,20 +5,17 @@
 %%% @end
 %%%-------------------------------------------------------------------
 -module(reports).
--compile([export_all, nowarn_export_all]). %%TODO: To delete after build
 
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/logger.hrl").
 
 %% API
-% -export([progress_bar/2]).
-
+-export([progress_line/3, progress_bar/1]).
 
 -type progress_bar() :: #{
     level => number(),
     size  => integer()
 }.
-
 
 -define(DEFAULT_BAR_SIZE, 10).
 
@@ -42,13 +39,13 @@
     Print         :: io_lib:chars().
 progress_line(1, [Level | Data], BarP)                 ->
     Bar = progress_bar(BarP#{level => Level}),
-    hd(io_lib:format("~s", [Bar]))  ++ " " ++ 
+    hd(io_lib:format("~s", [Bar]))  ++ "\t" ++ 
         progress_line(0,Data, BarP);
 progress_line(N, [Str | Data], BarP) when is_list(Str) ->
-    hd(io_lib:format("~s", [Str]))  ++ " " ++ 
+    hd(io_lib:format("~s", [Str]))  ++ "\t" ++ 
         progress_line(N-1, Data, BarP);
 progress_line(N, [Obj | Data], BarP)                   -> 
-    hd(io_lib:format("~0p", [Obj])) ++ " " ++ 
+    hd(io_lib:format("~0p", [Obj])) ++ "\t" ++ 
         progress_line(N-1, Data, BarP); 
 progress_line(_, [], _)                                ->
     [].
@@ -56,12 +53,12 @@ progress_line(_, [], _)                                ->
 progress_line_test() ->
     Bar = #{size => 10},
     Data1 = ["25/100", 25/100, "- loss:", 0.018],
-    ?assertEqual("25/100 [==>.......] - loss: 0.018 ", 
+    ?assertEqual("25/100\t[==>.......]\t- loss:\t0.018\t", 
                  progress_line(2, Data1, Bar)),
     ok.
 
 %%--------------------------------------------------------------------
-%% @doc TODO: todo
+%% @doc Returns a progress bar formatted object.
 %% @end
 %%--------------------------------------------------------------------
 -spec progress_bar(BarProperties) -> Print when

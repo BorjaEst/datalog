@@ -12,9 +12,7 @@
 
 -include_lib("common_test/include/ct.hrl").
 
--define(INFO(Info),   ct:log(?LOW_IMPORTANCE, "Info datalog: ~p", [Info])).
--define(ERROR(Error), ct:pal(?HI_IMPORTANCE, "Error datalog: ~p", [Error])).
-
+-define(PROGRESS_BAR, #{size => 20}).
 
 %%--------------------------------------------------------------------
 %% Function: suite() -> Info
@@ -91,9 +89,7 @@ end_per_testcase(_TestCase, _Config) ->
 %% N = integer() | forever
 %%--------------------------------------------------------------------
 groups() ->
-    [
-
-    ].
+    [].
 
 %%--------------------------------------------------------------------
 %% Function: all() -> GroupsAndTestCases | {skip,Reason}
@@ -104,7 +100,7 @@ groups() ->
 %%--------------------------------------------------------------------
 all() ->
     [
-
+        simple_progress_bar
     ].
 
 %%--------------------------------------------------------------------
@@ -127,10 +123,24 @@ my_test_case_example(_Config) ->
 
 % --------------------------------------------------------------------
 % COMMON TESTS -------------------------------------------------------
+simple_progress_bar() -> 
+    [].
+simple_progress_bar(_Config) -> 
+    DataLength = 200,
+    Metadata = ["loss = ?", "ac = ?"],
+    simple_progress_bar(0, DataLength, Metadata).
 
+simple_progress_bar(N, Length, Metadata) when N < Length -> 
+    console_print([N, N/Length | Metadata]),
+    simple_progress_bar(N + 20, Length, Metadata);
+simple_progress_bar(_, Length, Metadata) -> 
+    console_print([Length, 1.0 | Metadata]),
+    ok.
 
 
 % ----------------------------------------------------------------------------------------------------------------------
 % SPECIFIC HELPER FUNCTIONS --------------------------------------------------------------------------------------------
 
-
+console_print(Data) -> 
+    Report = reports:progress_line(2, Data, ?PROGRESS_BAR),
+    ct:print(Report ++ "\n").

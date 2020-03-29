@@ -5,14 +5,14 @@
 %%%
 %%% Created :
 %%%-------------------------------------------------------------------
--module(eunit_datalog_SUITE).
+-module(eunit_SUITE).
 
 -compile(export_all).
 -compile(nowarn_export_all).
 
 -include_lib("common_test/include/ct.hrl").
 
--define(INFO(Info), ct:log(?LOW_IMPORTANCE, "Info datalog: ~p", [Info])).
+-define(INFO(Info),   ct:log(?LOW_IMPORTANCE, "Info datalog: ~p", [Info])).
 -define(ERROR(Error), ct:pal(?HI_IMPORTANCE, "Error datalog: ~p", [Error])).
 
 %%--------------------------------------------------------------------
@@ -117,3 +117,7 @@ all() ->
 %%--------------------------------------------------------------------
 eunit_datalog() ->    [].
 eunit_datalog(_Config) -> ok = eunit:test([datalog]).
+
+eunit_reports() ->    [].
+eunit_reports(_Config) -> ok = eunit:test([reports]).
+
