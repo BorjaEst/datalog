@@ -5,14 +5,14 @@
 %%%
 %%% Created :
 %%%-------------------------------------------------------------------
--module(eunit_datalog_SUITE).
+-module(eunit_SUITE).
 
 -compile(export_all).
 -compile(nowarn_export_all).
 
 -include_lib("common_test/include/ct.hrl").
 
--define(INFO(Info), ct:log(?LOW_IMPORTANCE, "Info datalog: ~p", [Info])).
+-define(INFO(Info),   ct:log(?LOW_IMPORTANCE, "Info datalog: ~p", [Info])).
 -define(ERROR(Error), ct:pal(?HI_IMPORTANCE, "Error datalog: ~p", [Error])).
 
 %%--------------------------------------------------------------------
@@ -20,7 +20,7 @@
 %% Info = [tuple()]
 %%--------------------------------------------------------------------
 suite() ->
-	[{timetrap, {seconds, 30}}].
+    [{timetrap, {seconds, 30}}].
 
 %%--------------------------------------------------------------------
 %% Function: init_per_suite(Config0) ->
@@ -29,14 +29,14 @@ suite() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-	Config.
+    Config.
 
 %%--------------------------------------------------------------------
 %% Function: end_per_suite(Config0) -> term() | {save_config,Config1}
 %% Config0 = Config1 = [tuple()]
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
-	ok.
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: init_per_group(GroupName, Config0) ->
@@ -46,7 +46,7 @@ end_per_suite(_Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_group(_GroupName, Config) ->
-	Config.
+    Config.
 
 %%--------------------------------------------------------------------
 %% Function: end_per_group(GroupName, Config0) ->
@@ -55,7 +55,7 @@ init_per_group(_GroupName, Config) ->
 %% Config0 = Config1 = [tuple()]
 %%--------------------------------------------------------------------
 end_per_group(_GroupName, _Config) ->
-	ok.
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: init_per_testcase(TestCase, Config0) ->
@@ -65,7 +65,7 @@ end_per_group(_GroupName, _Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_testcase(_TestCase, Config) ->
-	Config.
+    Config.
 
 %%--------------------------------------------------------------------
 %% Function: end_per_testcase(TestCase, Config0) ->
@@ -75,7 +75,7 @@ init_per_testcase(_TestCase, Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
-	ok.
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: groups() -> [Group]
@@ -90,7 +90,7 @@ end_per_testcase(_TestCase, _Config) ->
 %% N = integer() | forever
 %%--------------------------------------------------------------------
 groups() ->
-	[].
+    [].
 
 %%--------------------------------------------------------------------
 %% Function: all() -> GroupsAndTestCases | {skip,Reason}
@@ -100,9 +100,9 @@ groups() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 all() ->
-	[
-		eunit_datalog
-	].
+    [
+        eunit_datalog
+    ].
 
 %%--------------------------------------------------------------------
 %% Function: TestCase() -> Info
@@ -115,5 +115,9 @@ all() ->
 %% Reason = term()
 %% Comment = term()
 %%--------------------------------------------------------------------
-eunit_datalog() ->	[].
+eunit_datalog() ->    [].
 eunit_datalog(_Config) -> ok = eunit:test([datalog]).
+
+eunit_reports() ->    [].
+eunit_reports(_Config) -> ok = eunit:test([reports]).
+

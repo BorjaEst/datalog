@@ -1,13 +1,10 @@
 %%%-------------------------------------------------------------------
 %%% @author borja
-%%% @copyright (C) 2019, <COMPANY>
 %%% @doc
 %%%
 %%% @end
-%%% Created : 15. Apr 2019 20:41
 %%%-------------------------------------------------------------------
 -module(datalog).
--compile([export_all, nowarn_export_all]). %%TODO: To delete after build
 
 -behaviour(gen_server).
 -include_lib("eunit/include/eunit.hrl").
@@ -18,7 +15,7 @@
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, 
-		 terminate/2, code_change/3]).
+         terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
 -define(EUNIT_TEST_FILE, "eunit_datalog_test.json").
@@ -55,33 +52,33 @@ start() ->
 %% @end
 %%--------------------------------------------------------------------
 -spec new(Name :: file:name_all()) ->
-	{ok, Reference :: reference()} |
-	{error, Reason :: file:posix() | badarg | system_limit}.
+    {ok, Reference :: reference()} |
+    {error, Reason :: file:posix() | badarg | system_limit}.
 new(Name) ->
-	gen_server:call(?SERVER, {new, Name}).
+    gen_server:call(?SERVER, {new, Name}).
 
 %%--------------------------------------------------------------------
 %% @doc Writes a map into the datalog file following json convention.
 %% @end
 %%--------------------------------------------------------------------
 -spec write(Reference :: reference(), EJSON :: #{}) -> 
-	ok.
+    ok.
 write(Reference, EJSON) ->
-	EJSON_Ext = EJSON#{
-			<<"timestamp">> => logger:timestamp(),
-			<<"pid">> => list_to_binary(pid_to_list(self()))
-	},
-	gen_server:cast(?SERVER, {write, Reference, EJSON_Ext}).
+    EJSON_Ext = EJSON#{
+            <<"timestamp">> => logger:timestamp(),
+            <<"pid">> => list_to_binary(pid_to_list(self()))
+    },
+    gen_server:cast(?SERVER, {write, Reference, EJSON_Ext}).
 
 %%--------------------------------------------------------------------
 %% @doc Closes a datalog.
 %% @end
 %%--------------------------------------------------------------------
 -spec close(Reference :: reference()) -> 
-	  ok |
-	  {error, Reason :: file:posix() | badarg | system_limit}.
+      ok |
+      {error, Reason :: file:posix() | badarg | system_limit}.
 close(Reference) ->
-	gen_server:call(?SERVER, {close, Reference}).
+    gen_server:call(?SERVER, {close, Reference}).
 
 
 %%%===================================================================
@@ -103,9 +100,9 @@ close(Reference) ->
   {ok, State :: #state{}} | {ok, State :: #state{}, timeout() | hibernate} |
   {stop, Reason :: term()} | ignore).
 init([]) ->
-	process_flag(trap_exit, true),
-	put(io_devices, #{}),
-	{ok, #state{}}.
+    process_flag(trap_exit, true),
+    put(io_devices, #{}),
+    {ok, #state{}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -123,19 +120,19 @@ init([]) ->
   {stop, Reason :: term(), Reply :: term(), NewState :: #state{}} |
   {stop, Reason :: term(), NewState :: #state{}}).
 handle_call({new, File}, _From, State) ->
-	case file:open(File, [write]) of
-		{ok, IoDevice} ->
-			Reply = {ok, add_iodevice(IoDevice)};
-		{error, Reason} ->
-			Reply = {error, Reason} 
-	end,
-	{reply, Reply, State};
+    case file:open(File, [write]) of
+        {ok, IoDevice} ->
+            Reply = {ok, add_iodevice(IoDevice)};
+        {error, Reason} ->
+            Reply = {error, Reason} 
+    end,
+    {reply, Reply, State};
 handle_call({close, Ref}, _From, State) ->
-	Reply = del_iodevice(Ref),
-	{reply, Reply, State};
+    Reply = del_iodevice(Ref),
+    {reply, Reply, State};
 handle_call(_Request, _From, State) ->
-	?LOG_NOTICE("Unexpected message"),
-	{reply, ok, State}.
+    ?LOG_NOTICE("Unexpected message"),
+    {reply, ok, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -149,11 +146,11 @@ handle_call(_Request, _From, State) ->
   {noreply, NewState :: #state{}, timeout() | hibernate} |
   {stop, Reason :: term(), NewState :: #state{}}).
 handle_cast({write, Ref, EJSON}, State) ->
-	write_iodevice(Ref, EJSON),
-	{noreply, State};
+    write_iodevice(Ref, EJSON),
+    {noreply, State};
 handle_cast(_Request, State) ->
-	?LOG_NOTICE("Unexpected message"),
-  	{noreply, State}.
+    ?LOG_NOTICE("Unexpected message"),
+      {noreply, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -170,8 +167,8 @@ handle_cast(_Request, State) ->
   {noreply, NewState :: #state{}, timeout() | hibernate} |
   {stop, Reason :: term(), NewState :: #state{}}).
 handle_info(_Info, State) ->
-	?LOG_NOTICE("Unexpected message"),
-	{noreply, State}.
+    ?LOG_NOTICE("Unexpected message"),
+    {noreply, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -185,10 +182,10 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 -spec(terminate(Reason :: (normal | shutdown | {shutdown, term()} | term()),
-	State :: #state{}) -> term()).
+    State :: #state{}) -> term()).
 terminate(_Reason, _State) ->
-	[del_iodevice(Ref) || Ref <- maps:keys(get(io_devices))],
-	ok.
+    [del_iodevice(Ref) || Ref <- maps:keys(get(io_devices))],
+    ok.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -199,11 +196,11 @@ terminate(_Reason, _State) ->
 %% @end
 %%--------------------------------------------------------------------
 -spec(code_change(OldVsn :: term() | {down, term()}, State :: #state{},
-    			  Extra :: term()) ->
-	{ok, NewState :: #state{}} | {error, Reason :: term()}).
+                  Extra :: term()) ->
+    {ok, NewState :: #state{}} | {error, Reason :: term()}).
 code_change(_OldVsn, State, _Extra) ->
-	?LOG_NOTICE("Unexpected message"),
-	{ok, State}.
+    ?LOG_NOTICE("Unexpected message"),
+    {ok, State}.
 
 %%%===================================================================
 %%% Internal functions
@@ -211,36 +208,36 @@ code_change(_OldVsn, State, _Extra) ->
 
 % ....................................................................
 add_iodevice(IoDevice) ->
-	IoDev_Map = get(io_devices),
-	Ref = make_ref(),
-	put(io_devices, IoDev_Map#{Ref => {IoDevice, next_is_val}}),
+    IoDev_Map = get(io_devices),
+    Ref = make_ref(),
+    put(io_devices, IoDev_Map#{Ref => {IoDevice, next_is_val}}),
     file:write(IoDevice, <<"[">>),
-	Ref.
+    Ref.
 
 
 % ....................................................................
 del_iodevice(Ref) ->
     IoDev_Map = get(io_devices),
-	{IoDevice, _} = maps:get(Ref, IoDev_Map),
-	file:write(IoDevice, <<"]">>),
-	put(io_devices, maps:remove(Ref, IoDev_Map)),
-	file:close(IoDevice).
+    {IoDevice, _} = maps:get(Ref, IoDev_Map),
+    file:write(IoDevice, <<"]">>),
+    put(io_devices, maps:remove(Ref, IoDev_Map)),
+    file:close(IoDevice).
 
 
 % ....................................................................
 write_iodevice(Ref, EJSON) ->
-	IoDev_Map = get(io_devices),
-	UpdateFun = fun(Val) -> write_ejson(Val, EJSON) end,
+    IoDev_Map = get(io_devices),
+    UpdateFun = fun(Val) -> write_ejson(Val, EJSON) end,
     put(io_devices, 
-		maps:update_with(Ref, UpdateFun, IoDev_Map)).
+        maps:update_with(Ref, UpdateFun, IoDev_Map)).
 
 write_ejson({IoDevice, next_is_val}, EJSON) ->
-	Json = jiffy:encode(EJSON),
-	file:write(IoDevice, Json),
-	{IoDevice, next_is_separator};
+    Json = jiffy:encode(EJSON),
+    file:write(IoDevice, Json),
+    {IoDevice, next_is_separator};
 write_ejson({IoDevice, next_is_separator}, EJSON) ->
-	file:write(IoDevice, <<",">>),
-	write_ejson({IoDevice, next_is_val}, EJSON).
+    file:write(IoDevice, <<",">>),
+    write_ejson({IoDevice, next_is_val}, EJSON).
 
 
 %%====================================================================
@@ -250,12 +247,12 @@ write_ejson({IoDevice, next_is_separator}, EJSON) ->
 % ----------------------------------------------------------------------------------------------------------------------
 % SPECIFIC SETUP FUNCTIONS ---------------------------------------------------------------------------------------------
 with_iodevice() -> 
-	put(io_devices, #{}),
-	{ok, IoDevice} = file:open(?EUNIT_TEST_FILE, [write]),
-	put(io, IoDevice).
+    put(io_devices, #{}),
+    {ok, IoDevice} = file:open(?EUNIT_TEST_FILE, [write]),
+    put(io, IoDevice).
 
 delete_file(_) -> 
-	file:delete(?EUNIT_TEST_FILE).
+    file:delete(?EUNIT_TEST_FILE).
 
 
 % ----------------------------------------------------------------------------------------------------------------------
@@ -263,29 +260,31 @@ delete_file(_) ->
 make_datalog_test_() ->
     [{"Correct IoDevice addition, writting and deletion with internal functions",
       {setup, local, fun with_iodevice/0, fun delete_file/1,
-	   {inorder, 
-        [{"Correct IoDevice addition", ?_test(test_add_iodevice())},
-		 {"Correct IoDevice writting", ?_test(test_write_iodevice())},
-		 {"Correct IoDevice clossing", ?_test(test_del_iodevice())},
-		 {"io_devices is empty ", ?_assertMatch(#{}, get(io_devices))}]}}}].
+       {inorder, 
+        [{"Correct IoDevice addition", ?_assert(add_iodevice_test())},
+         {"Correct IoDevice writting", ?_assert(write_iodevice_test())},
+         {"Correct IoDevice clossing", ?_assert(del_iodevice_test())},
+         {"io_devices is empty ", ?_assertMatch(#{}, get(io_devices))}]}}}].
 
 
 % ----------------------------------------------------------------------------------------------------------------------
 % ACTUAL TESTS ---------------------------------------------------------------------------------------------------------
-test_add_iodevice() ->
-	IoDevice = get(io),
-	Ref = add_iodevice(IoDevice),
-	?assert(is_reference(Ref)),
-	[?assert(is_reference(R)) || R <- maps:keys(get(io_devices))].
+add_iodevice_test() ->
+    IoDevice = get(io),
+    add_iodevice(IoDevice),
+    lists:all(
+        fun is_reference/1, 
+        maps:keys(get(io_devices))).
 
-test_write_iodevice() ->
-	[Ref] =  maps:keys(get(io_devices)),
-	EJSON = #{<<"foo">> => <<"bar">>},
-	[write_iodevice(Ref, EJSON) || _ <- lists:seq(1,20)].
+write_iodevice_test() ->
+    [Ref] =  maps:keys(get(io_devices)),
+    EJSON = #{<<"foo">> => <<"bar">>},
+    write_iodevice(Ref, EJSON),
+    true.
 
-test_del_iodevice() ->
-	[Ref] =  maps:keys(get(io_devices)),
-	?assert(ok == del_iodevice(Ref)).
+del_iodevice_test() ->
+    [Ref] =  maps:keys(get(io_devices)),
+    ok == del_iodevice(Ref).
 
 
 % ----------------------------------------------------------------------------------------------------------------------
