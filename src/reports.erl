@@ -37,19 +37,26 @@
 %%--------------------------------------------------------------------
 -spec progress_line(N, Data, BarProperties) -> Print when
     N             :: integer(),
-    Data          :: tuple(),
+    Data          :: [term()],
     BarProperties :: progress_bar(),
     Print         :: io_lib:chars().
-progress_line(N, Data, BarProperties) ->
-    {Before, [Level|After]} = lists:split(N-1, tuple_to_list(Data)),
-    Bar     = progress_bar(BarProperties#{level => Level}),
-    String  = term_to_binary(Before ++ [Bar] ++ After),
-    io_lib:format("~0p", [Before ++ [Bar] ++ After]).
+progress_line(1, [Level | Data], BarP)                 ->
+    Bar = progress_bar(BarP#{level => Level}),
+    hd(io_lib:format("~s", [Bar]))  ++ " " ++ 
+        progress_line(0,Data, BarP);
+progress_line(N, [Str | Data], BarP) when is_list(Str) ->
+    hd(io_lib:format("~s", [Str]))  ++ " " ++ 
+        progress_line(N-1, Data, BarP);
+progress_line(N, [Obj | Data], BarP)                   -> 
+    hd(io_lib:format("~0p", [Obj])) ++ " " ++ 
+        progress_line(N-1, Data, BarP); 
+progress_line(_, [], _)                                ->
+    [].
 
 progress_line_test() ->
     Bar = #{size => 10},
-    Data1 = {"25/100", 25/100, "- loss:", 0.018},
-    ?assertEqual("25/100 [==>.......] - loss: 0.0183", 
+    Data1 = ["25/100", 25/100, "- loss:", 0.018],
+    ?assertEqual("25/100 [==>.......] - loss: 0.018 ", 
                  progress_line(2, Data1, Bar)),
     ok.
 
