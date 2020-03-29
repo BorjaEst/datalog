@@ -2,7 +2,7 @@
 Set of tools to create reports! 
 
 
-## datalog
+## datalog module
 Generate a .json where your maps are logged. 
 
 
