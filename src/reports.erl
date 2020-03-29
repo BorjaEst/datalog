@@ -11,11 +11,12 @@
 -include_lib("kernel/include/logger.hrl").
 
 %% API
--export([progress_bar/2]).
+% -export([progress_bar/2]).
+
 
 -type progress_bar() :: #{
-    level := number(),
-    size  := integer()
+    level => number(),
+    size  => integer()
 }.
 
 
@@ -27,21 +28,35 @@
 %%====================================================================
 
 %%--------------------------------------------------------------------
-%% @doc Prints a list of data into an progress bar.
+%% @doc Prints a tuple as progress line. The N input is must be an
+%% integer specifying the possition with the value of the progress 
+%% in the bar (0.00 -> 1.00), the rest are printed as metadata: 
+%%  - Before the progress bar if the position is lower than N. 
+%%  - After the progress bar if the position is higher than N.
 %% @end
 %%--------------------------------------------------------------------
--spec progress_bar(ListOfValues, NumberOfLines) -> Print when
-    ListOfValues  :: [number()],
-    NumberOfLines :: integer(),
+-spec progress_line(N, Data, BarProperties) -> Print when
+    N             :: integer(),
+    Data          :: tuple(),
+    BarProperties :: progress_bar(),
     Print         :: io_lib:chars().
-progress_bar(ListOfValues, NumberOfLines) ->
-    
-    io_lib:format("~0p", [1]).
+progress_line(N, Data, BarProperties) ->
+    {Before, [Level|After]} = lists:split(N-1, tuple_to_list(Data)),
+    Bar     = progress_bar(BarProperties#{level => Level}),
+    String  = term_to_binary(Before ++ [Bar] ++ After),
+    io_lib:format("~0p", [Before ++ [Bar] ++ After]).
 
+progress_line_test() ->
+    Bar = #{size => 10},
+    Data1 = {"25/100", 25/100, "- loss:", 0.018},
+    ?assertEqual("25/100 [==>.......] - loss: 0.0183", 
+                 progress_line(2, Data1, Bar)),
+    ok.
 
-
-
-
+%%--------------------------------------------------------------------
+%% @doc TODO: todo
+%% @end
+%%--------------------------------------------------------------------
 -spec progress_bar(BarProperties) -> Print when
     BarProperties :: progress_bar(),
     Print         :: io_lib:chars().
@@ -59,7 +74,7 @@ progress_bar(BarProperties) ->
     end,
     io_lib:format(Format, [$=,$.]).
 
-progress_bar_test() -> 
+progress_barObject_test() -> 
     Bar1 = #{level => 0.00, size => 10},
     ?assertEqual("[..........]", progress_bar(Bar1)),
     Bar2 = #{level => 0.01, size => 10},
