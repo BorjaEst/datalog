@@ -49,7 +49,7 @@ end_per_suite(_Config) ->
 init_per_group(start_and_stop, Config) ->
     Config;
 init_per_group(_GroupName, Config) ->
-    datalog:start(),
+    application:start(datalog),
     Config.
 
 %%--------------------------------------------------------------------
@@ -61,7 +61,7 @@ init_per_group(_GroupName, Config) ->
 end_per_group(start_and_stop, _Config) ->
     ok;
 end_per_group(_GroupName, _Config) ->
-    exit(whereis(datalog), shutdown),
+    application:stop(datalog),
     ok.
 
 %%--------------------------------------------------------------------
